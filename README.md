@@ -1,4 +1,4 @@
-thenobuttonaudiobookplayer
+thenobuttonmusicplayer
 ===========================
 
 This Repository is a fork of https://github.com/exitnode/theonebuttonaudiobookplayer
@@ -41,7 +41,7 @@ Run the following commands: (below assumes using defaults for /etc/mpd.conf)
 
 Copy the tobabp.py script to /home/pi
 * cd /home/pi
-* wget https://raw.githubusercontent.com/linwiz/thenobuttonaudiobookplayer/master/tobabp.py
+* wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/tobabp.py
 
 Add the script to crontab:
 * sudo crontab -e
