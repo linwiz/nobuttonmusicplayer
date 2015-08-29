@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os, fnmatch
+import os.path
 import pyudev
 
 from mpd import (MPDClient, CommandError)
@@ -32,7 +33,10 @@ def loadMusic(client, con_id, device):
         os.system("cp --no-clobber /music/usb/* /music/mp3/")
         os.system("umount /music/usb")
         for filename in find_files('/music/mp3', '*.trash'):
-                os.remove(os.path.splitext(filename)[0])
+                if os.path.isfile(os.path.splitext(filename)[0]):
+                        os.remove(os.path.splitext(filename)[0])
+                os.remove(filename)
+        for filename in find_files('/music/usb', '*.trash'):
                 os.remove(filename)
         os.system("rm /music/mpd/tag_cache")
         os.system("/etc/init.d/mpd start")
