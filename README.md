@@ -25,3 +25,28 @@ The following software has been used:
 * remembers position: It will always remember the last played position
 * easy music deployment: When you plug in a USB thumb drive with a special name/label, the Raspberry will stop playing, mount the thumb drive, copies the new music, rebuilds the playlist and – after unplugging the thumb drive – starts playing music automatically
 * multi format: Since it uses mpd, the player supports  Ogg Vorbis, FLAC, OggFLAC, MP2, MP3, MP4/AAC, MOD, Musepack and wave
+
+
+Instructions
+=======
+Install the following packages:
+sudo apt-get install mpd
+sudo apt-get install mpc
+sudo apt-get install python-mpd
+sudo apt-get install python-pyudev
+
+(below assumes using defaults for /etc/mpd.conf)
+sudo mkdir -p /music/usb
+sudo ln -s /var/lib/mpd /music/mpd
+sudo ln -s /var/lib/mpd/music /music/mp3
+
+Copy the tobabp.py script to /home/pi
+
+Add the script to crontab:
+sudo crontab -e
+
+Add following line to the crontab:
+@reboot python /home/pi/tobabp.py &
+
+Reboot and test your new music player
+sudo reboot
