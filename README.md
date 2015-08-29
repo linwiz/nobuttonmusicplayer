@@ -54,3 +54,6 @@ Reboot and test your new music player
 
 You may also optinally enable random mode:
 * mpc random on
+
+To remove files from the Raspberry Pi:
+* Rename the file on the usb drive, 'music1.mp3' will become 'music1.mp3.trash'
