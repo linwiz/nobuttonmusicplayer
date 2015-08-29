@@ -7,7 +7,7 @@ It basically consists of:
   
 * 1 Raspberry Pi and case
 * 1 SD-Card
-* 1 USB drive
+* 1 USB drive with the volume name "5C04-57E8" (can be changed in the py script)
 * a pair of speakers
   
 The following software has been used:  
@@ -38,6 +38,8 @@ Run the following commands: (below assumes using defaults for /etc/mpd.conf)
 * sudo ln -s /var/lib/mpd/music /music/mp3
 
 Copy the tobabp.py script to /home/pi
+* cd /home/pi
+* wget https://raw.githubusercontent.com/linwiz/thenobuttonaudiobookplayer/master/tobabp.py
 
 Add the script to crontab:
 * sudo crontab -e
@@ -46,4 +48,7 @@ Add following line to the crontab:
 * @reboot python /home/pi/tobabp.py &
 
 Reboot and test your new music player
-sudo reboot
+* sudo reboot
+
+You may also optinally enable random mode:
+* mpc random on
