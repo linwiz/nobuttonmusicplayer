@@ -30,23 +30,20 @@ The following software has been used:
 Instructions
 =======
 Install the following packages:
-sudo apt-get install mpd
-sudo apt-get install mpc
-sudo apt-get install python-mpd
-sudo apt-get install python-pyudev
+* sudo apt-get install mpd mpc python-mpd python-pyudev
 
-(below assumes using defaults for /etc/mpd.conf)
-sudo mkdir -p /music/usb
-sudo ln -s /var/lib/mpd /music/mpd
-sudo ln -s /var/lib/mpd/music /music/mp3
+Run the following commands: (below assumes using defaults for /etc/mpd.conf)
+* sudo mkdir -p /music/usb
+* sudo ln -s /var/lib/mpd /music/mpd
+* sudo ln -s /var/lib/mpd/music /music/mp3
 
 Copy the tobabp.py script to /home/pi
 
 Add the script to crontab:
-sudo crontab -e
+* sudo crontab -e
 
 Add following line to the crontab:
-@reboot python /home/pi/tobabp.py &
+* @reboot python /home/pi/tobabp.py &
 
 Reboot and test your new music player
 sudo reboot
