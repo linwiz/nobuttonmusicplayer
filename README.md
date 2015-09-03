@@ -1,5 +1,5 @@
 thenobuttonmusicplayer
-===========================
+=======
 
 This Repository is a fork of https://github.com/exitnode/theonebuttonaudiobookplayer
 
@@ -22,12 +22,10 @@ The following software has been used:
 * pyudev (for USB access)
 * a self-written python script
   
-  The features are the following:
- 
+The features are the following:
+====== 
 * always on: When you power on the raspberry, it will boot up and start the python script and start playing music
-* remembers position: It will always remember the last played position
 * easy music deployment: When you plug in a USB thumb drive with a special name/label, the Raspberry will stop playing, mount the thumb drive, copies the new music, rebuilds the playlist and – after unplugging the thumb drive – starts playing music automatically
-* multi format: Since it uses mpd, the player supports  Ogg Vorbis, FLAC, OggFLAC, MP2, MP3, MP4/AAC, MOD, Musepack and wave
 
 
 Instructions
