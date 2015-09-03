@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-import os, fnmatch
-import os.path
-import pyudev
+import os, os.path, fnmatch, pyudev
 from time import sleep
 USBNAME = '5C04-57E8'
 
-# Some functions
 def find_files(directory, pattern):
         for root, dirs, files in os.walk(directory):
                 for basename in files:
@@ -33,20 +30,17 @@ def checkForUSBDevice(name):
         return res
 
 def main():
-        os.system("/bin/su -c /usr/local/bin/start-mocp.sh pi")
-        os.system("/bin/su -c /usr/local/bin/music.sh pi")
+        os.system("/bin/su -c /usr/local/bin/mocp-start.sh pi")
+        os.system("/bin/su -c /usr/local/bin/mocp-play.sh pi")
         while True:
                 device = checkForUSBDevice(USBNAME)
                 if device != "":
-                        os.system("/bin/su -c /usr/local/bin/stop-mocp.sh pi")
-                        print "USB Inserted"
+                        os.system("/bin/su -c /usr/local/bin/mocp-stop.sh pi")
                         loadMusic(device)
                         while checkForUSBDevice(USBNAME) == device:
-                                print "Waiting for USB removal"
                                 sleep(1.0)
-                        os.system("/bin/su -c /usr/local/bin/music.sh pi")
+                        os.system("/bin/su -c /usr/local/bin/mocp-play.sh pi")
                 sleep(0.1)
 
-# Script starts here
 if __name__ == "__main__":
         main()
