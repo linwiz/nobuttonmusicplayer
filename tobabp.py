@@ -19,7 +19,7 @@ def loadMusic(device):
         for filename in find_files('/music/mp3', '*.trash'):
                 if os.path.isfile(os.path.splitext(filename)[0]):
                         os.remove(os.path.splitext(filename)[0])
-                os.remove(filename)
+                        os.remove(filename)
         for filename in find_files('/music/usb', '*.trash'):
                 os.remove(filename)
         os.system("umount /music/usb")
@@ -44,7 +44,6 @@ def main():
                         while checkForUSBDevice(USBNAME) == device:
                                 print "Waiting for USB removal"
                                 sleep(1.0)
-                        os.system("/bin/su -c /usr/local/bin/start-mocp.sh pi")
                         os.system("/bin/su -c /usr/local/bin/music.sh pi")
                 sleep(0.1)
 
