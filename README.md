@@ -15,6 +15,7 @@ It basically consists of:
 The following software has been used:  
   
 * Raspbian minimal image (http://www.linuxsystems.it/2012/06/raspbian-wheezy-armhf-raspberry-pi-minimal-image)
+* moc (music on console)
 * mpd (music player daemon)
 * mpc
 * mpd-python
@@ -32,7 +33,7 @@ The following software has been used:
 Instructions
 =======
 Install the following packages:
-* sudo apt-get install mpd mpc python-mpd python-pyudev
+* sudo apt-get install moc mpd mpc python-mpd python-pyudev
 
 Run the following commands: (below assumes using defaults for /etc/mpd.conf)
 * sudo mkdir -p /music/usb
