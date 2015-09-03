@@ -2,15 +2,7 @@
 import os, fnmatch
 import os.path
 import pyudev
-
-from mpd import (MPDClient, CommandError)
-from socket import error as SocketError
 from time import sleep
-
-# Configure MPD connection settings
-HOST = 'localhost'
-PORT = '6600'
-CON_ID = {'host':HOST, 'port':PORT}
 USBNAME = '5C04-57E8'
 
 # Some functions
@@ -21,28 +13,16 @@ def find_files(directory, pattern):
                                 filename = os.path.join(root, basename)
                                 yield filename
 
-def mpdConnect(client, con_id):
-        try:
-                client.connect(**con_id)
-        except SocketError:
-                return True
-
-def loadMusic(client, con_id, device):
+def loadMusic(device):
         os.system("mount "+device+" /music/usb")
-        os.system("/etc/init.d/mpd stop")
         os.system("cp --no-clobber /music/usb/* /music/mp3/")
-        os.system("umount /music/usb")
         for filename in find_files('/music/mp3', '*.trash'):
                 if os.path.isfile(os.path.splitext(filename)[0]):
                         os.remove(os.path.splitext(filename)[0])
                 os.remove(filename)
         for filename in find_files('/music/usb', '*.trash'):
                 os.remove(filename)
-        os.system("rm /music/mpd/tag_cache")
-        os.system("/etc/init.d/mpd start")
-        os.system("mpc clear")
-        os.system("mpc ls | mpc add")
-        os.system("/etc/init.d/mpd restart")
+        os.system("umount /music/usb")
 
 def checkForUSBDevice(name):
         res = ""
@@ -53,32 +33,19 @@ def checkForUSBDevice(name):
         return res
 
 def main():
-        # MPD object instance
-        client = MPDClient()
-        mpdConnect(client, CON_ID)
-
-        status = client.status()
-        print status
-
+        os.system("/bin/su -c /usr/local/bin/start-mocp.sh pi")
+        os.system("/bin/su -c /usr/local/bin/music.sh pi")
         while True:
                 device = checkForUSBDevice(USBNAME)
                 if device != "":
+                        os.system("/bin/su -c /usr/local/bin/stop-mocp.sh pi")
                         print "USB Inserted"
-                        client.disconnect()
-                        loadMusic(client, CON_ID, device)
-                        mpdConnect(client, CON_ID)
-                        print client.status()
+                        loadMusic(device)
                         while checkForUSBDevice(USBNAME) == device:
-                                print "Waiting for USB to sleep"
+                                print "Waiting for USB removal"
                                 sleep(1.0)
-                        if client.status()["state"] == "stop":
-                                client.play()
-                                print "Playing"
-                        else:
-                                client.pause()
-                                print "Paused"
-                else:
-                        client.play()
+                        os.system("/bin/su -c /usr/local/bin/start-mocp.sh pi")
+                        os.system("/bin/su -c /usr/local/bin/music.sh pi")
                 sleep(0.1)
 
 # Script starts here
