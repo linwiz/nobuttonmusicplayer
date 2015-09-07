@@ -14,15 +14,16 @@ It basically consists of:
   
 The following software has been used:  
   
-* Raspbian minimal image (http://www.linuxsystems.it/2012/06/raspbian-wheezy-armhf-raspberry-pi-minimal-image)
+* Raspbian Distro
 * moc (music on console)
 * pyudev (for USB access)
 * a self-written python script
   
-The features are the following:
+Features:
 ====== 
-* always on: When you power on the raspberry, it will boot up and start the python script and start playing music
-* easy music deployment: When you plug in a USB thumb drive with a special name/label, the Raspberry will stop playing, mount the thumb drive, copies the new music, rebuilds the playlist and – after unplugging the thumb drive – starts playing music automatically
+* Always on: When you power on the raspberry, it will boot up and start the python script and start playing music
+* Easy music deployment: When you plug in a USB thumb drive with a special name/label, the Raspberry will stop playing, mount the thumb drive, copies the new music, rebuilds the playlist and – after unplugging the thumb drive – starts playing music automatically
+* To remove music from the Raspberry Pi simply rename the file on the USB drive, 'music1.mp3' should become 'music1.mp3.trash'. The next time you plug the USB drive in to the Raspberry Pi the files music1.mp3 and music1.mp3.trash will be deleted.
 
 
 Instructions
@@ -51,6 +52,3 @@ Add following line to the crontab:
 
 Reboot and test your new music player
 * sudo reboot
-
-To remove files from the Raspberry Pi:
-* Rename the file on the usb drive, 'music1.mp3' will become 'music1.mp3.trash'
