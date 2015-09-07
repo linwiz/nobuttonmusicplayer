@@ -28,6 +28,12 @@ Features:
 
 Instructions
 =======
+Via installation script:
+* wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/install.sh
+* chmod +x install.sh
+* sudo ./install.sh
+
+Manually:
 Install the following packages:
 * sudo apt-get install moc python-pyudev
 
