@@ -9,16 +9,13 @@ It basically consists of:
   
 * 1 Raspberry Pi and case
 * 1 SD-Card
-* 1 USB drive with the volume name "5C04-57E8" (can be changed in the py script)
+* 1 USB drive with the volume name "16GB" (can be changed in the py script)
 * a pair of speakers
   
 The following software has been used:  
   
 * Raspbian minimal image (http://www.linuxsystems.it/2012/06/raspbian-wheezy-armhf-raspberry-pi-minimal-image)
 * moc (music on console)
-* mpd (music player daemon)
-* mpc
-* mpd-python
 * pyudev (for USB access)
 * a self-written python script
   
@@ -31,28 +28,29 @@ The features are the following:
 Instructions
 =======
 Install the following packages:
-* sudo apt-get install moc mpd mpc python-mpd python-pyudev
+* sudo apt-get install moc python-pyudev
 
-Run the following commands: (below assumes using defaults for /etc/mpd.conf)
+Run the following commands:
 * sudo mkdir -p /music/usb
-* sudo ln -s /var/lib/mpd /music/mpd
-* sudo ln -s /var/lib/mpd/music /music/mp3
+* sudo mkdir -p /music/mp3
 
-Copy the tobabp.py script to /home/pi
-* cd /home/pi
-* wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/tobabp.py
+Copy the scripts to /usr/local/bin
+* cd /usr/local/bin
+* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/tobabp.py
+* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/mocp-start.sh
+* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/mocp-stop.sh
+* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/mocp-play.sh
+* sudo chmod +x mocp-* tobabp.py
 
+ 
 Add the script to crontab:
 * sudo crontab -e
 
 Add following line to the crontab:
-* @reboot python /home/pi/tobabp.py &
+* @reboot python /usr/local/bin/tobabp.py &
 
 Reboot and test your new music player
 * sudo reboot
-
-You may also optinally enable random mode:
-* mpc random on
 
 To remove files from the Raspberry Pi:
 * Rename the file on the usb drive, 'music1.mp3' will become 'music1.mp3.trash'
