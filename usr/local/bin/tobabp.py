@@ -30,16 +30,16 @@ def checkForUSBDevice(name):
         return res
 
 def main():
-        os.system("/bin/su -c /usr/local/bin/mocp-start.sh pi")
-        os.system("/bin/su -c /usr/local/bin/mocp-play.sh pi")
+        os.system("/bin/su - pi -c \"/usr/bin/mocp -S\"")
+        os.system("/bin/su - pi -c \"/bin/ls -d /music/mp3/*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,n -p\"")
         while True:
                 device = checkForUSBDevice(USBNAME)
                 if device != "":
-                        os.system("/bin/su -c /usr/local/bin/mocp-stop.sh pi")
+                        os.system("/bin/su - pi -c \"/usr/bin/mocp -s\"")
                         loadMusic(device)
                         while checkForUSBDevice(USBNAME) == device:
                                 sleep(1.0)
-                        os.system("/bin/su -c /usr/local/bin/mocp-play.sh pi")
+                        os.system("/bin/su - pi -c \"/bin/ls -d /music/mp3/*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,n -p\"")
                 sleep(0.1)
 
 if __name__ == "__main__":
