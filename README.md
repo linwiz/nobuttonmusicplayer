@@ -41,15 +41,11 @@ Run the following commands:
 * sudo mkdir -p /music/usb
 * sudo mkdir -p /music/mp3
 
-Copy the scripts to /usr/local/bin
+Copy the script to /usr/local/bin
 * cd /usr/local/bin
 * sudo wget http://git.io/vZINO
-* sudo wget http://git.io/vZINC
-* sudo wget http://git.io/vZINg
-* sudo wget http://git.io/vZINr
-* sudo chmod +x mocp-* tobabp.py
+* sudo chmod +x tobabp.py
 
- 
 Add the script to crontab:
 * sudo crontab -e
 
