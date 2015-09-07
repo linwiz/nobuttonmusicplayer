@@ -29,7 +29,7 @@ Features:
 Instructions
 =======
 Via installation script:
-* wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/install.sh
+* wget http://git.io/vZIbA
 * chmod +x install.sh
 * sudo ./install.sh
 
@@ -43,10 +43,10 @@ Run the following commands:
 
 Copy the scripts to /usr/local/bin
 * cd /usr/local/bin
-* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/tobabp.py
-* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/mocp-start.sh
-* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/mocp-stop.sh
-* sudo wget https://raw.githubusercontent.com/linwiz/thenobuttonmusicplayer/master/usr/local/bin/mocp-play.sh
+* sudo wget http://git.io/vZINO
+* sudo wget http://git.io/vZINC
+* sudo wget http://git.io/vZINg
+* sudo wget http://git.io/vZINr
 * sudo chmod +x mocp-* tobabp.py
 
  
