@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os, os.path, fnmatch, pyudev
 from time import sleep
-USBNAME = '5C04-57E8'
+USBNAME = '16GB'
 
 def find_files(directory, pattern):
         for root, dirs, files in os.walk(directory):
