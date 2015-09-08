@@ -22,8 +22,7 @@ The following software has been used:
 Features:
 ====== 
 * Always on: When you power on the raspberry, it will boot up and start the python script and start playing music
-* Easy music deployment: When you plug in a USB thumb drive with a special name/label, the Raspberry will stop playing, mount the thumb drive, copies the new music, rebuilds the playlist and – after unplugging the thumb drive – starts playing music automatically
-* To remove music from the Raspberry Pi simply rename the file on the USB drive, 'music1.mp3' should become 'music1.mp3.trash'. The next time you plug the USB drive in to the Raspberry Pi the files music1.mp3 and music1.mp3.trash will be deleted.
+* Easy music deployment: When you plug in a USB thumb drive with a special name/label, the Raspberry will stop playing, removes all old music, mount the thumb drive, copies the new music, rebuilds the playlist and – after unplugging the thumb drive – starts playing music automatically
 
 
 Instructions
