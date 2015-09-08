@@ -25,12 +25,12 @@ def find_files(directory, pattern):
                                 yield filename
 
 def loadMusic(device):
-        #os.system("mount "+device+" /music/usb")
-        #for filename in find_files('/music/usb', '*.*'):
-        #        os.remove(filename)
-        #os.system("cp --no-clobber /run/media/pi/Seagate Freeagent Go/Documents/Music/kyle/*.* /music/usb")
-        #os.system('/bin/su - pi -c "notify-send \"Title\" \"Message\""')
-        os.system("umount /music/usb")
+        os.system('notify-send "Music Sync" "Syncing music to Kyle\'s USB drive."')
+        os.system("sudo mount "+device+" /music/usb")
+        os.system("sudo rm /music/usb/*")
+        os.system("sudo cp /run/media/pi/Seagate\ Freeagent\ Go/Documents/Music/kyle/*.* /music/usb")
+        os.system("sudo umount /music/usb")
+        os.system('notify-send "Music Sync" "Its is safe to remove Kyle\'s USB drive."')
 
 def checkForUSBDevice(name):
         res = ""
