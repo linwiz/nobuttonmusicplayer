@@ -26,13 +26,8 @@ def find_files(directory, pattern):
 
 def loadMusic(device):
         os.system("mount "+device+" /music/usb")
-        os.system("cp --no-clobber /music/usb/* /music/mp3/")
-        for filename in find_files('/music/mp3', '*.trash'):
-                if os.path.isfile(os.path.splitext(filename)[0]):
-                        os.remove(os.path.splitext(filename)[0])
-                        os.remove(filename)
-        for filename in find_files('/music/usb', '*.trash'):
-                os.remove(filename)
+        os.system("rm /music/mp3/*.*")
+        os.system("cp /music/usb/* /music/mp3/")
         os.system("umount /music/usb")
 
 def checkForUSBDevice(name):
