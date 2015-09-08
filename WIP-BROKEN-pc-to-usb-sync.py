@@ -15,7 +15,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os, os.path, fnmatch, pyudev
 from time import sleep
-USBNAME = '16GB'
+USBNAME = 'KylesMusic'
 
 def find_files(directory, pattern):
         for root, dirs, files in os.walk(directory):
@@ -27,7 +27,7 @@ def find_files(directory, pattern):
 def loadMusic(device):
         os.system('notify-send "Music Sync" "Syncing music to Kyle\'s USB drive."')
         os.system("sudo mount "+device+" /music/usb")
-        os.system("sudo rm /music/usb/*")
+        os.system("sudo rm /music/usb/*.*")
         os.system("sudo cp /run/media/pi/Seagate\ Freeagent\ Go/Documents/Music/kyle/*.* /music/usb")
         os.system("sudo umount /music/usb")
         os.system('notify-send "Music Sync" "Its is safe to remove Kyle\'s USB drive."')
