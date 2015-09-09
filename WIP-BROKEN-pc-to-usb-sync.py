@@ -15,7 +15,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os, os.path, fnmatch, pyudev
 from time import sleep
-USBNAME = 'KylesMusic'
+USBNAME = 'KYLEMUSIC'
 
 def find_files(directory, pattern):
         for root, dirs, files in os.walk(directory):
