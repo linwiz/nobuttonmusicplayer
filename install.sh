@@ -4,7 +4,7 @@ apt-get install moc python-pyudev
 mkdir -p /music/{usb,mp3}
 
 cd /usr/local/bin
-wget http://git.io/vZINO
+wget -O tobabp.py http://git.io/vZINO
 chmod +x tobabp.py
 
 crontab -l > mycron

@@ -1,4 +1,4 @@
-thenobuttonmusicplayer
+nobuttonmusicplayer
 =======
 
 This Repository is a fork of https://github.com/exitnode/theonebuttonaudiobookplayer
@@ -28,7 +28,7 @@ Features:
 Instructions
 =======
 Via installation script:
-* wget http://git.io/vZIbA
+* wget -O install.sh http://git.io/vZIbA
 * chmod +x install.sh
 * sudo ./install.sh
 
@@ -42,7 +42,7 @@ Run the following commands:
 
 Copy the script to /usr/local/bin
 * cd /usr/local/bin
-* sudo wget http://git.io/vZINO
+* sudo wget -O tobabp.py http://git.io/vZINO
 * sudo chmod +x tobabp.py
 
 Add the script to crontab:

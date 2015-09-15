@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-#  Copyright (C) 2012 Michael Clemens
+#  Original Copyright (C) 2012 Michael Clemens
+#  nobuttonmusicplayer Copyright (C) 2015 Matthew Motz
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
