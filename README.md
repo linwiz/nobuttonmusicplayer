@@ -1,23 +1,21 @@
 nobuttonmusicplayer
 =======
 
-This Repository is a fork of https://github.com/exitnode/theonebuttonaudiobookplayer
-
 This little Raspberry Pi based project is the base for my motorcycle radio project. I won't need any fancy display to distract me, or any buttons to press that will take my attention off of the car drivers who won't see me.
 
 It basically consists of:  
   
 * 1 Raspberry Pi and case
 * 1 SD-Card
-* 1 USB drive with the volume name "16GB" (can be changed in the py script)
+* 1 USB drive with one vfat partition
 * a pair of speakers
   
 The following software has been used:  
   
 * Raspbian Distro
 * moc (music on console)
-* pyudev (for USB access)
-* a self-written python script
+* libudev (for USB access)
+* a self-written C program
   
 Features:
 ====== 
@@ -30,11 +28,11 @@ Instructions
 Via installation script:
 * wget -O install.sh http://git.io/vZIbA
 * chmod +x install.sh
-* sudo ./install.sh
+* ./install.sh
 
 Manually:
 Install the following packages:
-* sudo apt-get install moc python-pyudev
+* sudo apt-get install moc libudev
 
 Run the following commands:
 * sudo mkdir -p /music/usb
@@ -42,14 +40,14 @@ Run the following commands:
 
 Copy the script to /usr/local/bin
 * cd /usr/local/bin
-* sudo wget -O tobabp.py http://git.io/vZINO
-* sudo chmod +x tobabp.py
+* sudo wget -O tnbmp http://git.io/vZb0O
+* sudo chmod +x tnbmp
 
 Add the script to crontab:
-* sudo crontab -e
+* crontab -e
 
 Add following line to the crontab:
-* @reboot python /usr/local/bin/tobabp.py &
+* @reboot /usr/local/bin/tnbmp &
 
 Reboot and test your new music player
 * sudo reboot

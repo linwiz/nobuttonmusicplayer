@@ -1,14 +1,15 @@
 #!/bin/bash
-apt-get install moc python-pyudev
+sudo apt-get install moc libudev
 
-mkdir -p /music/{usb,mp3}
+sudomkdir -p /music/{usb,mp3}
 
 cd /usr/local/bin
-wget -O tobabp.py http://git.io/vZINO
-chmod +x tobabp.py
+sudo wget -O tnbmp http://git.io/vZb0O
+sudo chmod +x tnbmp
 
+cd ~
 crontab -l > mycron
-echo "@reboot python /usr/local/bin/tobabp.py &" >> mycron
+echo "@reboot /usr/local/bin/tnbmp &" >> mycron
 crontab mycron
 rm mycron
 
