@@ -1,7 +1,7 @@
 #!/bin/bash
 sudo apt-get install moc libudev
 
-sudomkdir -p /music/{usb,mp3}
+sudo mkdir -p /music/{usb,mp3}
 
 cd /usr/local/bin
 sudo wget -O tnbmp http://git.io/vZb0O
