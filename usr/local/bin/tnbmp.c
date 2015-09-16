@@ -31,7 +31,7 @@
 
 
 *******************************************/
-
+#include <linux/limits.h>
 #include <libudev.h>
 #include <stdio.h>
 #include <errno.h>
@@ -43,8 +43,38 @@
 #include <sys/mount.h>
 #include <syslog.h>
 
+#define COMMAND_LEN 8
+#define DATA_SIZE 512
 int main (void)
 {
+//TESTING POPEN
+   FILE *pf;
+       char command[COMMAND_LEN];
+       char data[DATA_SIZE];
+
+       // Execute a process listing
+       sprintf(command, "su - pi -c \"/usr/bin/mocp -S\" 2>&1");
+
+       // Setup our pipe for reading and execute our command.
+       pf = popen(command,"r");
+
+       if(!pf){
+         fprintf(stderr, "Could not open pipe for output.\n");
+         return;
+       }
+
+       // Grab data from process execution
+       fgets(data, DATA_SIZE , pf);
+
+       // Print grabbed data to the screen.
+       fprintf(stdout, "-%s-\n",data);
+
+       if (pclose(pf) != 0)
+           fprintf(stderr," Error: Failed to close command stream \n");
+// END TESTING POPEN
+
+       return 0;
+
 	setlogmask (LOG_UPTO (LOG_NOTICE));
 	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
@@ -57,9 +87,9 @@ int main (void)
         }
 	const char* media_src = "/music/usb/";
 	const char* media_trgt = "/music/mp3/";
-	system("su - pi -c \"/usr/bin/mocp -S\"");
+	//system("su - pi -c \"/usr/bin/mocp -S\" 2>&1 | logger");
 	char command3[100];
-	sprintf(command3, "su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,r,n -p\"",media_trgt);
+	sprintf(command3, "su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,r,n -p\" 2>&1 | logger",media_trgt);
 	system(command3);
 
 	struct udev *udev;
@@ -140,15 +170,15 @@ int main (void)
 						int result = mount(mount_src,mount_trgt,mount_type,mount_flags,NULL);
 						if (result==0)
 						{
-							system("su - pi -c \"/usr/bin/mocp -s\"");
+							system("su - pi -c \"/usr/bin/mocp -s\" 2>&1 | logger");
 							syslog (LOG_NOTICE, "Mount created at %s...\n",mount_trgt);
 							syslog (LOG_NOTICE, "Removing old music...\n");
 							char command1[100];
-							sprintf(command1, "sudo rm %s*.*", media_trgt);
+							sprintf(command1, "sudo rm %s*.* 2>&1 | logger", media_trgt);
 							system(command1);
 							syslog (LOG_NOTICE, "Adding new music...\n");
 							char command2[100];
-							sprintf(command2, "sudo cp %s*.* %s",media_src,media_trgt);
+							sprintf(command2, "sudo cp %s*.* %s 2>&1 | logger",media_src,media_trgt);
 							system(command2);
 							umount(mount_trgt);
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
