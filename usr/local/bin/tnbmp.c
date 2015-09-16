@@ -41,17 +41,23 @@
 #include <string.h>
 #include <regex.h>
 #include <sys/mount.h>
+#include <syslog.h>
 
 int main (void)
 {
-        if(geteuid()!=0)
+	setlogmask (LOG_UPTO (LOG_NOTICE));
+	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
+
+        if (geteuid()!=0)
 	{
-                printf("Please run nbmp as a superuser.\n");
+		syslog (LOG_NOTICE, "Please run tnbmp as a superuser");
+		closelog ();
                 return 1;
         }
 	const char* media_src = "/music/usb/";
 	const char* media_trgt = "/music/mp3/";
-        system("su - pi -c \"/usr/bin/mocp -S\"");
+	system("su - pi -c \"/usr/bin/mocp -S\"");
 	char command3[100];
 	sprintf(command3, "su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,r,n -p\"",media_trgt);
 	system(command3);
@@ -67,7 +73,8 @@ int main (void)
 	udev = udev_new();
 	if (!udev)
 	{
-		printf("Can't create udev\n");
+		syslog (LOG_NOTICE, "Can't create udev");
+		closelog ();
 		exit(1);
 	}
 	mon = udev_monitor_new_from_netlink(udev, "udev");
@@ -83,13 +90,10 @@ int main (void)
 		const char *path;
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
-		dev = udev_device_get_parent_with_subsystem_devtype(
-		       dev,
-		       "usb",
-		       "usb_device");
+		dev = udev_device_get_parent_with_subsystem_devtype(dev,"usb","usb_device");
 		if (!dev)
 		{
-			printf("Unable to find parent usb device.\n");
+			syslog (LOG_NOTICE, "Unable to find Parent usb device");
 		}
 	}
 	udev_enumerate_unref(enumerate);
@@ -110,57 +114,50 @@ int main (void)
 			{
 				regex_t regex;
 				int reti;
-				//char msgbuf[100];
 				reti = regcomp(&regex, "^/dev/sd[a-z][0-9]", 0);
 				if (reti)
 				{
-					fprintf(stderr, "Could not compile regex\n");
+					syslog (LOG_NOTICE, "Could not compile regex");
 				}
 				reti = regexec(&regex, udev_device_get_devnode(dev), 0, NULL, 0);
 				if (!reti)
 				{
 					if (strcmp(udev_device_get_action(dev),"add")==0)
 					{
-						printf("\nGot Device\n");
-						printf("   Node: %s\n", udev_device_get_devnode(dev));
-						printf("   Subsystem: %s\n", udev_device_get_subsystem(dev));
-						printf("   Devtype: %s\n", udev_device_get_devtype(dev));
-						printf("   Action: %s\n", udev_device_get_action(dev));
+						syslog (LOG_NOTICE, "Device node added: %s", udev_device_get_devnode(dev));
 						const char* mount_src  = udev_device_get_devnode(dev);
 						const char* mount_trgt = "/music/usb";
 						const char* mount_type = "vfat";
 						const unsigned long mount_flags = 0;
-						//const char* opts = "mode=0700,uid=65534";
 						if (mkdir(media_trgt,0777)<0)
 						{
-							printf("Unable to create directory %s (probably it already exists)\n",media_trgt);
+							syslog (LOG_NOTICE, "Unable to create directory %s (already exists?)",media_trgt);
 						}
 						if (mkdir(media_src,0777)<0)
 						{
-							printf("Unable to create directory %s (probably it already exists)\n",media_src);
+							syslog (LOG_NOTICE, "Unable to create directory %s (already exists?)",media_src);
 						}
 						int result = mount(mount_src,mount_trgt,mount_type,mount_flags,NULL);
 						if (result==0)
 						{
 							system("su - pi -c \"/usr/bin/mocp -s\"");
-							printf("Mount created at %s...\n",mount_trgt);
-							printf("Removing old music...\n");
+							syslog (LOG_NOTICE, "Mount created at %s...\n",mount_trgt);
+							syslog (LOG_NOTICE, "Removing old music...\n");
 							char command1[100];
-							sprintf(command1, "rm %s*", media_trgt);
+							sprintf(command1, "sudo rm %s*.*", media_trgt);
 							system(command1);
-							printf("Adding new music...\n");
+							syslog (LOG_NOTICE, "Adding new music...\n");
 							char command2[100];
-							sprintf(command2, "cp %s* %s",media_src,media_trgt);
+							sprintf(command2, "sudo cp %s*.* %s",media_src,media_trgt);
 							system(command2);
 							umount(mount_trgt);
-							printf("Rebuilding playlist...\n");
+							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
 							system(command3);
-							printf("Done...\n");
+							syslog (LOG_NOTICE, "Done...\n");
 						}
 						else
 						{
-							printf("Error : Failed to mount %s\n Reason: %s [%d]\n",mount_src,strerror(errno),errno);
-							//return -1;
+							syslog (LOG_NOTICE, "Error : Failed to mount %s\n Reason: %s [%d]\n",mount_src,strerror(errno),errno);
 						}
 						udev_device_unref(dev);
 					}
@@ -169,9 +166,9 @@ int main (void)
 			}
 		}
 		usleep(250*1000);
-		//printf(".");
 		fflush(stdout);
 	}
 	udev_unref(udev);
+	closelog ();
 	return 0;
 }
