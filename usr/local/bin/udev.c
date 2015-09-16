@@ -35,7 +35,8 @@
 
 int main (void)
 {
-        if(geteuid()!=0) {
+        if(geteuid()!=0)
+	{
                 printf("Please run nbmp as a superuser.\n");
                 return 1;
         }
@@ -55,7 +56,8 @@ int main (void)
    	struct udev_monitor *mon;
 	int fd;
 	udev = udev_new();
-	if (!udev) {
+	if (!udev)
+	{
 		printf("Can't create udev\n");
 		exit(1);
 	}
@@ -67,7 +69,8 @@ int main (void)
 	udev_enumerate_add_match_subsystem(enumerate, mysubs2);
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
-	udev_list_entry_foreach(dev_list_entry, devices) {
+	udev_list_entry_foreach(dev_list_entry, devices)
+	{
 		const char *path;
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
@@ -75,12 +78,14 @@ int main (void)
 		       dev,
 		       "usb",
 		       "usb_device");
-		if (!dev) {
+		if (!dev)
+		{
 			printf("Unable to find parent usb device.\n");
 		}
 	}
 	udev_enumerate_unref(enumerate);
-	while (1) {
+	while (1)
+	{
 		fd_set fds;
 		struct timeval tv;
 		int ret;
@@ -89,19 +94,24 @@ int main (void)
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		ret = select(fd+1, &fds, NULL, NULL, &tv);
-		if (ret > 0 && FD_ISSET(fd, &fds)) {
+		if (ret > 0 && FD_ISSET(fd, &fds))
+		{
 			dev = udev_monitor_receive_device(mon);
-			if (dev) {
+			if (dev)
+			{
 				regex_t regex;
 				int reti;
 				//char msgbuf[100];
 				reti = regcomp(&regex, "^/dev/sd[a-z][0-9]", 0);
-				if (reti) {
+				if (reti)
+				{
 					fprintf(stderr, "Could not compile regex\n");
 				}
 				reti = regexec(&regex, udev_device_get_devnode(dev), 0, NULL, 0);
-				if (!reti) {
-					if (strcmp(udev_device_get_action(dev),"add")==0) {
+				if (!reti)
+				{
+					if (strcmp(udev_device_get_action(dev),"add")==0)
+					{
 						printf("\nGot Device\n");
 						printf("   Node: %s\n", udev_device_get_devnode(dev));
 						printf("   Subsystem: %s\n", udev_device_get_subsystem(dev));
@@ -112,14 +122,17 @@ int main (void)
 						const char* mount_type = "vfat";
 						const unsigned long mount_flags = 0;
 						//const char* opts = "mode=0700,uid=65534";
-						if (mkdir(media_trgt,0777)<0) {
+						if (mkdir(media_trgt,0777)<0)
+						{
 							printf("Unable to create directory %s (probably it already exists)\n",media_trgt);
 						}
-						if (mkdir(media_src,0777)<0) {
+						if (mkdir(media_src,0777)<0)
+						{
 							printf("Unable to create directory %s (probably it already exists)\n",media_src);
 						}
 						int result = mount(mount_src,mount_trgt,mount_type,mount_flags,NULL);
-						if (result==0) {
+						if (result==0)
+						{
 							system("su - pi -c \"/usr/bin/mocp -s\"");
 							printf("Mount created at %s...\n",mount_trgt);
 							printf("Removing old music...\n");
@@ -134,7 +147,8 @@ int main (void)
 							printf("Rebuilding playlist...\n");
 							system(command3);
 						}
-						else {
+						else
+						{
 							printf("Error : Failed to mount %s\n Reason: %s [%d]\n",mount_src,strerror(errno),errno);
 							//return -1;
 						}
