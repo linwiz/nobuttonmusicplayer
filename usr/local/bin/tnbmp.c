@@ -1,4 +1,7 @@
 /*******************************************
+    ORIGINAL AUTHOR-PROVIDED INFORMATION
+********************************************
+
  libudev example.
 
  This example prints out properties of
@@ -21,6 +24,12 @@
  2010-05-22 - Initial Revision
  2010-05-27 - Monitoring initializaion
               moved to before enumeration.
+*******************************************
+
+*******************************************
+
+
+
 *******************************************/
 
 #include <libudev.h>
@@ -146,6 +155,7 @@ int main (void)
 							umount(mount_trgt);
 							printf("Rebuilding playlist...\n");
 							system(command3);
+							printf("Done...\n");
 						}
 						else
 						{
