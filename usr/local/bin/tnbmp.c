@@ -45,39 +45,29 @@
 
 #define COMMAND_LEN 8
 #define DATA_SIZE 512
+
+int mypopen (char *command, char *mode)
+{
+	FILE *in;
+	extern FILE *popen();
+	char buff[512];
+	if(!(in = popen(command, mode))){
+		syslog (LOG_NOTICE, "Command failed: %s", command);
+	}
+	while(fgets(buff, sizeof(buff), in)!=NULL){
+		syslog (LOG_NOTICE, "%s", buff);
+	}
+	pclose(in);
+	return 0;
+}
+
 int main (void)
 {
-//TESTING POPEN
-   FILE *pf;
-       char command[COMMAND_LEN];
-       char data[DATA_SIZE];
-
-       // Execute a process listing
-       sprintf(command, "su - pi -c \"/usr/bin/mocp -S\" 2>&1");
-
-       // Setup our pipe for reading and execute our command.
-       pf = popen(command,"r");
-
-       if(!pf){
-         fprintf(stderr, "Could not open pipe for output.\n");
-         return;
-       }
-
-       // Grab data from process execution
-       fgets(data, DATA_SIZE , pf);
-
-       // Print grabbed data to the screen.
-       fprintf(stdout, "-%s-\n",data);
-
-       if (pclose(pf) != 0)
-           fprintf(stderr," Error: Failed to close command stream \n");
-// END TESTING POPEN
-
-       return 0;
-
 	setlogmask (LOG_UPTO (LOG_NOTICE));
 	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
+
+	mypopen("su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
 
         if (geteuid()!=0)
 	{
@@ -87,10 +77,9 @@ int main (void)
         }
 	const char* media_src = "/music/usb/";
 	const char* media_trgt = "/music/mp3/";
-	//system("su - pi -c \"/usr/bin/mocp -S\" 2>&1 | logger");
 	char command3[100];
-	sprintf(command3, "su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,r,n -p\" 2>&1 | logger",media_trgt);
-	system(command3);
+	sprintf(command3, "su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u && /usr/bin/mocp -o s,r,n -p\" 2>&1",media_trgt);
+	mypopen(command3,"r");
 
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
@@ -170,19 +159,21 @@ int main (void)
 						int result = mount(mount_src,mount_trgt,mount_type,mount_flags,NULL);
 						if (result==0)
 						{
-							system("su - pi -c \"/usr/bin/mocp -s\" 2>&1 | logger");
+							mypopen("su - pi -c \"/usr/bin/mocp -s\" 2>&1", "r");
 							syslog (LOG_NOTICE, "Mount created at %s...\n",mount_trgt);
 							syslog (LOG_NOTICE, "Removing old music...\n");
+							mypopen("ls -lah /music/mp3 2>&1", "r");
 							char command1[100];
-							sprintf(command1, "sudo rm %s*.* 2>&1 | logger", media_trgt);
-							system(command1);
+							sprintf(command1, "rm -v %s*.* 2>&1", media_trgt);
+							mypopen(command1, "r");
+							mypopen("ls -lah /music/mp3 2>&1", "r");
 							syslog (LOG_NOTICE, "Adding new music...\n");
 							char command2[100];
-							sprintf(command2, "sudo cp %s*.* %s 2>&1 | logger",media_src,media_trgt);
-							system(command2);
+							sprintf(command2, "cp -v %s*.* %s 2>&1",media_src,media_trgt);
+							mypopen(command2, "r");
 							umount(mount_trgt);
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
-							system(command3);
+							mypopen(command3, "r");
 							syslog (LOG_NOTICE, "Done...\n");
 						}
 						else
