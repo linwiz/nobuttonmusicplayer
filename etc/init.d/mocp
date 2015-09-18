@@ -1,0 +1,103 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:             MOCP Application Instance
+# Required-Start:       $all
+# Required-Stop:
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    starts instance of mocp
+# Description:          starts instance of mocp using start-stop-daemon
+### END INIT INFO
+
+# http://ubuntuforums.org/showthread.php?t=1993254&p=11991855#post11991855
+
+# Change the user here as required
+USER=pi
+
+is_running()
+{
+	# Start the daemon
+        if ! pidof -o  %PPID mocp > /dev/null; then
+        	return 1;
+	else
+		return 0;
+        fi
+}
+
+start_mocd()
+{
+	if ! is_running; then
+
+		echo "Starting MOCP...";
+
+                # Start the daemon
+                start-stop-daemon --start --chuid "$USER" --exec /usr/bin/mocp -- -S;
+
+		# Give time for the daemon to start
+		sleep 2;
+
+		# Uncomment below for full volume
+                #/usr/bin/mocp --volume 100 --play;
+
+		# Uncomment below for shuffle
+                #/usr/bin/mocp --on shuffle;
+
+		# Uncomment below for auto next
+                #/usr/bin/mocp --on autonext;
+
+		# Uncomment below for auto repeat
+		#/usr/bin/mocp --on repeat;
+
+		echo "Starting MOCP...";
+	else
+                echo "MOCP Already Running...";
+        fi
+}
+
+stop_mocd()
+{
+	if is_running; then
+		# Stop the daemon
+		start-stop-daemon --stop --exec /usr/bin/mocp -- -x;
+	else
+		echo "MOCP is not running";
+	fi
+}
+
+case "$1" in
+	start)
+		# Start moc as a daemon.
+		start_mocd;
+	;;
+
+	stop)
+        	stop_mocd;
+	;;
+
+	restart)
+		# Stop mocd
+		stop_mocd;
+
+		# Give time for the daemon to stop.
+		sleep 1;
+
+		# Restart the daemon
+		start_mocd;
+	;;
+
+	status)
+
+		if is_running; then
+			echo "Running";
+			exit 0;
+		else
+			echo "Not running";
+			exit 1;
+		fi
+	;;
+
+	*)
+        	echo "Usage: $0 {start|stop|restart|status}"
+        	exit 0;
+	;;
+esac
