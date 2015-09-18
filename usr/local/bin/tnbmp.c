@@ -8,7 +8,9 @@
 #include <string.h>
 #include <regex.h>
 #include <sys/mount.h>
+#include <sys/types.h>
 #include <syslog.h>
+#include <dirent.h>
 
 int mypopen (char *command, char *mode)
 {
@@ -29,19 +31,7 @@ int mypopen (char *command, char *mode)
 
 int main (void)
 {
-	setlogmask (LOG_UPTO (LOG_NOTICE));
-	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-
-	if (geteuid() != 0)
-	{
-		syslog (LOG_NOTICE, "Please run tnbmp as a superuser");
-		closelog ();
-		return 1;
-	}
-
-	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
-	mypopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
-
+	// Create variables.
 	const char* media_src = "/music/usb/";
 	const char* media_trgt = "/music/mp3/";
 	char commandRebuildPlaylist[100];
@@ -56,10 +46,43 @@ int main (void)
 	char mysubs2[] = "partition";
 	struct udev_monitor *mon;
 	int fd;
+	const char* mount_trgt = "/music/usb";
+	const char* mount_type = "vfat";
+	const unsigned long mount_flags = 0;
 
+	setlogmask (LOG_UPTO (LOG_NOTICE));
+	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+
+	// Check if mocp server is running.
+	FILE *in2;
+	extern FILE *popen();
+	char buff2[512];
+	if (!(in2 = popen("mocp -Q %%state 2>&1", "r")))
+	{
+		syslog (LOG_NOTICE, "Command failed:");
+	}
+	while (fgets(buff2, sizeof(buff2), in2) != NULL)
+	{
+		syslog (LOG_NOTICE, "%s", buff2);
+	}
+	pclose(in2);
+	// If no, Start the moc server.
+	//mypopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
+
+	// Check if mocp is stopped.
+	// If yes, Start playing music from the moc playlist.
 	sprintf(commandPlayMusic, "/bin/su - pi -c \"/usr/bin/mocp -o s,r,n -p\" 2>&1");
-	mypopen(commandPlayMusic, "r");
+	//mypopen(commandPlayMusic, "r");
+	
+	if (geteuid() != 0)
+	{
+		syslog (LOG_NOTICE, "Please run tnbmp as a superuser");
+		closelog ();
+		return 1;
+	}
+	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
 
+	// Setup udev monitoring instance.
 	udev = udev_new();
 	if (!udev)
 	{
@@ -67,7 +90,6 @@ int main (void)
 		closelog ();
 		exit(1);
 	}
-
 	mon = udev_monitor_new_from_netlink(udev, "udev");
 	udev_monitor_filter_add_match_subsystem_devtype(mon, mysubs, NULL);
 	udev_monitor_enable_receiving(mon);
@@ -76,7 +98,6 @@ int main (void)
 	udev_enumerate_add_match_subsystem(enumerate, mysubs2);
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
-
 	udev_list_entry_foreach(dev_list_entry, devices)
 	{
 		const char *path;
@@ -91,6 +112,7 @@ int main (void)
 	}
 	udev_enumerate_unref(enumerate);
 
+	// Start monitoring udev for new usb storage devices.
 	while (1)
 	{
 		fd_set fds;
@@ -109,6 +131,7 @@ int main (void)
 			{
 				regex_t regex;
 				int reti;
+				// Look for a device with a node matching /dev/sd[a-z][0-9].
 				reti = regcomp(&regex, "^/dev/sd[a-z][0-9]", 0);
 				if (reti)
 				{
@@ -117,41 +140,86 @@ int main (void)
 				reti = regexec(&regex, udev_device_get_devnode(dev), 0, NULL, 0);
 				if (!reti)
 				{
+					// Check that the matching device is being added.
 					if (strcmp(udev_device_get_action(dev), "add") == 0)
 					{
 						syslog (LOG_NOTICE, "Device node added: %s",
 							udev_device_get_devnode(dev));
 						const char* mount_src  = udev_device_get_devnode(dev);
-						const char* mount_trgt = "/music/usb";
-						const char* mount_type = "vfat";
-						const unsigned long mount_flags = 0;
 
-						if (mkdir(media_trgt, 0777) < 0)
+						// Create directories if they are non existant.
+						DIR* trgtdir = opendir(media_trgt);
+						if (trgtdir)
 						{
-							syslog (LOG_NOTICE, "Unable to create directory %s (already exists?)",
-								media_trgt);
+							// Directory exists.
+							closedir(trgtdir);
 						}
-						if (mkdir(media_src, 0777) < 0)
+						else if (ENOENT == errno)
 						{
-							syslog (LOG_NOTICE, "Unable to create directory %s (already exists?)",
-								media_src);
+							// Directory does not exist.
+							if (mkdir(media_trgt, 0777) < 0)
+							{
+								syslog (LOG_NOTICE, "Unable to create directory %s",
+									media_trgt);
+							}
+							else {
+								syslog (LOG_NOTICE, "Directory %s created", media_trgt);
+							}
 						}
+						else
+						{
+							// opendir() failed for some other reason.
+						}
+						DIR* srcdir = opendir(media_src);
+						if (srcdir)
+						{
+							// Directory exists.
+							closedir(srcdir);
+						}
+						else if (ENOENT == errno)
+						{
+							// Directory does not exist.
+							if (mkdir(media_src, 0777) < 0)
+							{
+								syslog (LOG_NOTICE, "Unable to create directory %s",
+									media_src);
+							}
+							else {
+								syslog (LOG_NOTICE, "Directory %s created", media_src);
+							}
+						}
+						else
+						{
+							// opendir() failed for some other reason.
+						}
+
+						// Mount the added usb device.
 						int result = mount(mount_src, mount_trgt, mount_type, mount_flags, NULL);
 						if (result == 0)
 						{
+							// Stop playing music through moc.
 							mypopen("/bin/su - pi -c \"/usr/bin/mocp -s\" 2>&1", "r");
 							syslog (LOG_NOTICE, "Mount created at %s...\n", mount_trgt);
+							// Remove old music.
 							syslog (LOG_NOTICE, "Removing old music...\n");
 							sprintf(commandRemoveFiles, "/bin/rm %s*.* 2>&1", media_trgt);
 							mypopen(commandRemoveFiles, "r");
+							
+							// Add new music from the usb device.
 							syslog (LOG_NOTICE, "Adding new music...\n");
 							sprintf(commandCopyFiles, "/bin/cp %s*.* %s 2>&1", media_src, media_trgt);
 							mypopen(commandCopyFiles, "r");
+
+							// Remove the mount point.
 							syslog (LOG_NOTICE, "Mount removed from  %s...\n", mount_trgt);
 							umount(mount_trgt);
+
+							// Rebuild the moc playlist.
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
 							sprintf(commandRebuildPlaylist, "/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1", media_trgt);
 							mypopen(commandRebuildPlaylist, "r");
+							
+							// Start playing music from the moc playlist.
 							syslog (LOG_NOTICE, "Done...\n");
 							mypopen(commandPlayMusic, "r");
 						}

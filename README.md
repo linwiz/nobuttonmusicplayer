@@ -43,11 +43,12 @@ Copy the script to /usr/local/bin
 * sudo wget -O tnbmp http://git.io/vZb0O
 * sudo chmod +x tnbmp
 
-Add the script to crontab:
-* crontab -e
-
-Add following line to the crontab:
-* @reboot /usr/local/bin/tnbmp &
+Install the init.d script
+* cd /etc/init.d
+* sudo wget -O mocp 
+* sudo chmod +x mocp
+* sudo chmod 755 mocp
+* sudo update-rc.d mocp defaults
 
 Reboot and test your new music player
 * sudo reboot
