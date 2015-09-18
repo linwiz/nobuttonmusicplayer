@@ -40,11 +40,14 @@ int main (void)
 	}
 
 	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
-	mypopen("su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
+	mypopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
 
 	const char* media_src = "/music/usb/";
 	const char* media_trgt = "/music/mp3/";
-	char command3[100];
+	char commandRebuildPlaylist[100];
+	char commandPlayMusic[100];
+	char commandRemoveFiles[100];
+	char commandCopyFiles[100];
 	struct udev *udev;
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *dev_list_entry;
@@ -54,9 +57,8 @@ int main (void)
 	struct udev_monitor *mon;
 	int fd;
 
-	sprintf(command3, "su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u"
-		" && /usr/bin/mocp -o s,r,n -p\" 2>&1", media_trgt);
-	mypopen(command3, "r");
+	sprintf(commandPlayMusic, "/bin/su - pi -c \"/usr/bin/mocp -o s,r,n -p\" 2>&1");
+	mypopen(commandPlayMusic, "r");
 
 	udev = udev_new();
 	if (!udev)
@@ -137,22 +139,21 @@ int main (void)
 						int result = mount(mount_src, mount_trgt, mount_type, mount_flags, NULL);
 						if (result == 0)
 						{
-							mypopen("su - pi -c \"/usr/bin/mocp -s\" 2>&1", "r");
+							mypopen("/bin/su - pi -c \"/usr/bin/mocp -s\" 2>&1", "r");
 							syslog (LOG_NOTICE, "Mount created at %s...\n", mount_trgt);
 							syslog (LOG_NOTICE, "Removing old music...\n");
-							mypopen("ls -lah /music/mp3 2>&1", "r");
-							char command1[100];
-							sprintf(command1, "rm -v %s*.* 2>&1", media_trgt);
-							mypopen(command1, "r");
-							mypopen("ls -lah /music/mp3 2>&1", "r");
+							sprintf(commandRemoveFiles, "/bin/rm %s*.* 2>&1", media_trgt);
+							mypopen(commandRemoveFiles, "r");
 							syslog (LOG_NOTICE, "Adding new music...\n");
-							char command2[100];
-							sprintf(command2, "cp -v %s*.* %s 2>&1", media_src, media_trgt);
-							mypopen(command2, "r");
+							sprintf(commandCopyFiles, "/bin/cp %s*.* %s 2>&1", media_src, media_trgt);
+							mypopen(commandCopyFiles, "r");
+							syslog (LOG_NOTICE, "Mount removed from  %s...\n", mount_trgt);
 							umount(mount_trgt);
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
-							mypopen(command3, "r");
+							sprintf(commandRebuildPlaylist, "/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1", media_trgt);
+							mypopen(commandRebuildPlaylist, "r");
 							syslog (LOG_NOTICE, "Done...\n");
+							mypopen(commandPlayMusic, "r");
 						}
 						else
 						{
