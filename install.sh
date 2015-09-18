@@ -7,10 +7,11 @@ cd /usr/local/bin
 sudo wget -O tnbmp http://git.io/vZb0O
 sudo chmod +x tnbmp
 
-cd ~
-crontab -l > mycron
-echo "@reboot /usr/local/bin/tnbmp &" >> mycron
-crontab mycron
-rm mycron
+cd /etc/init.d
+sudo wget -O mocp http://git.io/vnkNo
+sudo chmod +x mocp
+sudo chmod 755 mocp
+sudo update-rc.d mocp defaults
 
+cd ~
 reboot

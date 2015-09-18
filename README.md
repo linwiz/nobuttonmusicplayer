@@ -45,7 +45,7 @@ Copy the script to /usr/local/bin
 
 Install the init.d script
 * cd /etc/init.d
-* sudo wget -O mocp 
+* sudo wget -O mocp http://git.io/vnkNo
 * sudo chmod +x mocp
 * sudo chmod 755 mocp
 * sudo update-rc.d mocp defaults

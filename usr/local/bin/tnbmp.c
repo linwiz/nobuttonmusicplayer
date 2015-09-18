@@ -31,6 +31,17 @@ int mypopen (char *command, char *mode)
 
 int main (void)
 {
+	if (geteuid() != 0)
+	{
+		syslog (LOG_NOTICE, "Please run tnbmp as a superuser");
+		closelog ();
+		return 1;
+	}
+	
+	setlogmask (LOG_UPTO (LOG_NOTICE));
+	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
+
 	// Create variables.
 	const char* media_src = "/music/usb/";
 	const char* media_trgt = "/music/mp3/";
@@ -50,37 +61,42 @@ int main (void)
 	const char* mount_type = "vfat";
 	const unsigned long mount_flags = 0;
 
-	setlogmask (LOG_UPTO (LOG_NOTICE));
-	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-
 	// Check if mocp server is running.
 	FILE *in2;
 	extern FILE *popen();
 	char buff2[512];
-	if (!(in2 = popen("mocp -Q %%state 2>&1", "r")))
+	if (!(in2 = popen("/etc/init.d/mocp status 2>&1", "r")))
 	{
 		syslog (LOG_NOTICE, "Command failed:");
 	}
 	while (fgets(buff2, sizeof(buff2), in2) != NULL)
 	{
-		syslog (LOG_NOTICE, "%s", buff2);
+		if (strstr(buff2, "Not running"))
+		{
+			// If no, Start the moc server.
+			mypopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
+			sleep(5);		
+			// Check if mocp is stopped.
+			FILE *in3;
+			extern FILE *popen();
+			char buff3[512];
+			if (!(in3 = popen("/bin/su - pi -c \"/usr/bin/mocp -Q %state\" 2>&1", "r")))
+			{
+				syslog (LOG_NOTICE, "Command failed:");
+			}
+			while (fgets(buff3, sizeof(buff3), in3) != NULL)
+			{
+				if (strstr(buff3, "STOP"))
+				{
+					// If yes, Start playing music from the moc playlist.
+					syslog (LOG_NOTICE, "Playing Music");
+					sprintf(commandPlayMusic, "/bin/su - pi -c \"/usr/bin/mocp -o s,r,n -p\" 2>&1");
+				}
+			}
+			pclose(in3);
+		}
 	}
 	pclose(in2);
-	// If no, Start the moc server.
-	//mypopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
-
-	// Check if mocp is stopped.
-	// If yes, Start playing music from the moc playlist.
-	sprintf(commandPlayMusic, "/bin/su - pi -c \"/usr/bin/mocp -o s,r,n -p\" 2>&1");
-	//mypopen(commandPlayMusic, "r");
-	
-	if (geteuid() != 0)
-	{
-		syslog (LOG_NOTICE, "Please run tnbmp as a superuser");
-		closelog ();
-		return 1;
-	}
-	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
 
 	// Setup udev monitoring instance.
 	udev = udev_new();
