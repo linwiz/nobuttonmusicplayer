@@ -12,7 +12,7 @@
 #include <syslog.h>
 #include <dirent.h>
 
-int mypopen (char *command, char *mode)
+int logpopen (char *command, char *mode)
 {
 	FILE *in;
 	extern FILE *popen();
@@ -26,6 +26,34 @@ int mypopen (char *command, char *mode)
 		syslog (LOG_NOTICE, "%s", buff);
 	}
 	pclose(in);
+	return 0;
+}
+
+int makedir(const char *directorytomake)
+{
+	// Create directories if they are non existant.
+	DIR* trgtdir = opendir(directorytomake);
+	if (trgtdir)
+	{
+		// Directory exists.
+		closedir(trgtdir);
+	}
+	else if (ENOENT == errno)
+	{
+		// Directory does not exist.
+		if (mkdir(directorytomake, 0777) < 0)
+		{
+			syslog (LOG_NOTICE, "Unable to create directory %s",
+					directorytomake);
+		}
+		else {
+			syslog (LOG_NOTICE, "Directory %s created", directorytomake);
+		}
+	}
+	else
+	{
+		// opendir() failed for some other reason.
+	}
 	return 0;
 }
 
@@ -74,8 +102,9 @@ int main (void)
 		if (strstr(buff2, "Not running"))
 		{
 			// If no, Start the moc server.
-			mypopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
+			logpopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
 			sleep(5);		
+
 			// Check if mocp is stopped.
 			FILE *in3;
 			extern FILE *popen();
@@ -163,68 +192,27 @@ int main (void)
 							udev_device_get_devnode(dev));
 						const char* mount_src  = udev_device_get_devnode(dev);
 
-						// Create directories if they are non existant.
-						DIR* trgtdir = opendir(media_trgt);
-						if (trgtdir)
-						{
-							// Directory exists.
-							closedir(trgtdir);
-						}
-						else if (ENOENT == errno)
-						{
-							// Directory does not exist.
-							if (mkdir(media_trgt, 0777) < 0)
-							{
-								syslog (LOG_NOTICE, "Unable to create directory %s",
-									media_trgt);
-							}
-							else {
-								syslog (LOG_NOTICE, "Directory %s created", media_trgt);
-							}
-						}
-						else
-						{
-							// opendir() failed for some other reason.
-						}
-						DIR* srcdir = opendir(media_src);
-						if (srcdir)
-						{
-							// Directory exists.
-							closedir(srcdir);
-						}
-						else if (ENOENT == errno)
-						{
-							// Directory does not exist.
-							if (mkdir(media_src, 0777) < 0)
-							{
-								syslog (LOG_NOTICE, "Unable to create directory %s",
-									media_src);
-							}
-							else {
-								syslog (LOG_NOTICE, "Directory %s created", media_src);
-							}
-						}
-						else
-						{
-							// opendir() failed for some other reason.
-						}
+						// Make directories.
+						makedir(media_trgt);
+						makedir(media_src);
 
 						// Mount the added usb device.
 						int result = mount(mount_src, mount_trgt, mount_type, mount_flags, NULL);
 						if (result == 0)
 						{
 							// Stop playing music through moc.
-							mypopen("/bin/su - pi -c \"/usr/bin/mocp -s\" 2>&1", "r");
+							logpopen("/bin/su - pi -c \"/usr/bin/mocp -s\" 2>&1", "r");
 							syslog (LOG_NOTICE, "Mount created at %s...\n", mount_trgt);
+
 							// Remove old music.
 							syslog (LOG_NOTICE, "Removing old music...\n");
 							sprintf(commandRemoveFiles, "/bin/rm %s*.* 2>&1", media_trgt);
-							mypopen(commandRemoveFiles, "r");
-							
+							logpopen(commandRemoveFiles, "r");
+
 							// Add new music from the usb device.
 							syslog (LOG_NOTICE, "Adding new music...\n");
 							sprintf(commandCopyFiles, "/bin/cp %s*.* %s 2>&1", media_src, media_trgt);
-							mypopen(commandCopyFiles, "r");
+							logpopen(commandCopyFiles, "r");
 
 							// Remove the mount point.
 							syslog (LOG_NOTICE, "Mount removed from  %s...\n", mount_trgt);
@@ -233,11 +221,11 @@ int main (void)
 							// Rebuild the moc playlist.
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
 							sprintf(commandRebuildPlaylist, "/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1", media_trgt);
-							mypopen(commandRebuildPlaylist, "r");
-							
+							logpopen(commandRebuildPlaylist, "r");
+
 							// Start playing music from the moc playlist.
 							syslog (LOG_NOTICE, "Done...\n");
-							mypopen(commandPlayMusic, "r");
+							logpopen(commandPlayMusic, "r");
 						}
 						else
 						{
