@@ -47,7 +47,7 @@ int makedir(const char *directorytomake)
 		if (mkstatus < 0)
 		{
 			syslog (LOG_NOTICE, "Unable to create directory %s (%s :%d)",
-					directorytomake, strerror(errno), errno);
+			        directorytomake, strerror(errno), errno);
 		}
 		else {
 			syslog (LOG_NOTICE, "Directory %s created", directorytomake);
@@ -68,7 +68,7 @@ int main (void)
 		closelog ();
 		return 1;
 	}
-	
+
 	setlogmask (LOG_UPTO (LOG_NOTICE));
 	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
@@ -106,7 +106,7 @@ int main (void)
 		{
 			// If no, Start the moc server.
 			logpopen("/bin/su - pi -c \"/usr/bin/mocp -S\" 2>&1", "r");
-			sleep(5);		
+			sleep(5);
 
 			// Check if mocp is stopped.
 			FILE *in3;
@@ -152,7 +152,7 @@ int main (void)
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
 		dev = udev_device_get_parent_with_subsystem_devtype(dev,
-									"usb", "usb_device");
+		                                                    "usb", "usb_device");
 		if (!dev)
 		{
 			syslog (LOG_NOTICE, "Unable to find Parent usb device");
@@ -192,7 +192,7 @@ int main (void)
 					if (strcmp(udev_device_get_action(dev), "add") == 0)
 					{
 						syslog (LOG_NOTICE, "Device node added: %s",
-							udev_device_get_devnode(dev));
+						        udev_device_get_devnode(dev));
 						const char* mount_src  = udev_device_get_devnode(dev);
 
 						// Make directories.
@@ -224,8 +224,8 @@ int main (void)
 							// Rebuild the moc playlist.
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
 							sprintf(commandRebuildPlaylist,
-								"/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1",
-								 media_trgt);
+							        "/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1",
+							        media_trgt);
 							logpopen(commandRebuildPlaylist, "r");
 
 							// Start playing music from the moc playlist.
@@ -235,7 +235,7 @@ int main (void)
 						else
 						{
 							syslog (LOG_NOTICE, "Error : Failed to mount %s\n Reason: %s [%d]\n",
-								mount_src, strerror(errno), errno);
+							        mount_src, strerror(errno), errno);
 						}
 						udev_device_unref(dev);
 					}
