@@ -9,6 +9,7 @@
 #include <regex.h>
 #include <sys/mount.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <syslog.h>
 #include <dirent.h>
 
@@ -33,18 +34,20 @@ int makedir(const char *directorytomake)
 {
 	// Create directories if they are non existant.
 	DIR* trgtdir = opendir(directorytomake);
+	// Directory exists.
 	if (trgtdir)
 	{
-		// Directory exists.
 		closedir(trgtdir);
 	}
+	// Directory does not exist.
 	else if (ENOENT == errno)
 	{
-		// Directory does not exist.
-		if (mkdir(directorytomake, 0777) < 0)
+		int mkstatus;
+		mkstatus = mkdir(directorytomake, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		if (mkstatus < 0)
 		{
-			syslog (LOG_NOTICE, "Unable to create directory %s",
-					directorytomake);
+			syslog (LOG_NOTICE, "Unable to create directory %s (%s :%d)",
+					directorytomake, strerror(errno), errno);
 		}
 		else {
 			syslog (LOG_NOTICE, "Directory %s created", directorytomake);
@@ -149,7 +152,7 @@ int main (void)
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
 		dev = udev_device_get_parent_with_subsystem_devtype(dev,
-							"usb", "usb_device");
+									"usb", "usb_device");
 		if (!dev)
 		{
 			syslog (LOG_NOTICE, "Unable to find Parent usb device");
@@ -220,7 +223,9 @@ int main (void)
 
 							// Rebuild the moc playlist.
 							syslog (LOG_NOTICE, "Rebuilding playlist...\n");
-							sprintf(commandRebuildPlaylist, "/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1", media_trgt);
+							sprintf(commandRebuildPlaylist,
+								"/bin/su - pi -c \"/bin/ls -d %s*.* > /home/pi/.moc/playlist.m3u\" 2>&1",
+								 media_trgt);
 							logpopen(commandRebuildPlaylist, "r");
 
 							// Start playing music from the moc playlist.
