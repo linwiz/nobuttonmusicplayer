@@ -20,10 +20,10 @@ void logpopen (char *command, char *mode)
 	char buff[512];
 	if (!(in = popen(command, mode)))
 	{
-		syslog (LOG_NOTICE, "Command failed: %s", command);
+		syslog (LOG_NOTICE, "Command failed: %s (%s :%d)", command, strerror(errno), errno);
 	}
 	while (fgets(buff, sizeof(buff), in) != NULL)
-{
+	{
 		syslog (LOG_NOTICE, "%s", buff);
 	}
 	pclose(in);
@@ -54,7 +54,8 @@ void makedir(const char *directory)
 	}
 	else
 	{
-		// opendir() failed for some other reason.
+		syslog (LOG_NOTICE, "Unable to open directory %s (%s :%d)",
+		        directory, strerror(errno), errno);
 	}
 }
 
@@ -96,7 +97,7 @@ int main (void)
 	char buff2[512];
 	if (!(in2 = popen("/etc/init.d/mocp status 2>&1", "r")))
 	{
-		syslog (LOG_NOTICE, "Command failed:");
+		syslog (LOG_NOTICE, "Command server status failed: %s (%d)", strerror(errno), errno);
 	}
 	while (fgets(buff2, sizeof(buff2), in2) != NULL)
 	{
@@ -112,7 +113,7 @@ int main (void)
 			char buff3[512];
 			if (!(in3 = popen("/bin/su - pi -c \"/usr/bin/mocp -Q %state\" 2>&1", "r")))
 			{
-				syslog (LOG_NOTICE, "Command failed:");
+				syslog (LOG_NOTICE, "Command play status failed: %s (%d)", strerror(errno), errno);
 			}
 			while (fgets(buff3, sizeof(buff3), in3) != NULL)
 			{
