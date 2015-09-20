@@ -13,7 +13,7 @@
 #include <syslog.h>
 #include <dirent.h>
 
-int logpopen (char *command, char *mode)
+void logpopen (char *command, char *mode)
 {
 	FILE *in;
 	extern FILE *popen();
@@ -23,17 +23,16 @@ int logpopen (char *command, char *mode)
 		syslog (LOG_NOTICE, "Command failed: %s", command);
 	}
 	while (fgets(buff, sizeof(buff), in) != NULL)
-	{
+{
 		syslog (LOG_NOTICE, "%s", buff);
 	}
 	pclose(in);
-	return 0;
 }
 
-int makedir(const char *directorytomake)
+void makedir(const char *directory)
 {
 	// Create directories if they are non existant.
-	DIR* trgtdir = opendir(directorytomake);
+	DIR* trgtdir = opendir(directory);
 	// Directory exists.
 	if (trgtdir)
 	{
@@ -43,21 +42,20 @@ int makedir(const char *directorytomake)
 	else if (ENOENT == errno)
 	{
 		int mkstatus;
-		mkstatus = mkdir(directorytomake, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		mkstatus = mkdir(directory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		if (mkstatus < 0)
 		{
 			syslog (LOG_NOTICE, "Unable to create directory %s (%s :%d)",
-			        directorytomake, strerror(errno), errno);
+			        directory, strerror(errno), errno);
 		}
 		else {
-			syslog (LOG_NOTICE, "Directory %s created", directorytomake);
+			syslog (LOG_NOTICE, "Directory %s created", directory);
 		}
 	}
 	else
 	{
 		// opendir() failed for some other reason.
 	}
-	return 0;
 }
 
 int main (void)
