@@ -13,6 +13,7 @@
 #include <syslog.h>
 #include <dirent.h>
 
+// Run a command and log all output into syslog.
 void logpopen (char *command, char *mode)
 {
 	FILE *in;
@@ -29,6 +30,7 @@ void logpopen (char *command, char *mode)
 	pclose(in);
 }
 
+// Check to see if a directory exists, make it if not.
 void makedir(const char *directory)
 {
 	// Create directories if they are non existant.
@@ -61,16 +63,16 @@ void makedir(const char *directory)
 
 int main (void)
 {
+	setlogmask (LOG_UPTO (LOG_NOTICE));
+	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
+
 	if (geteuid() != 0)
 	{
 		syslog (LOG_NOTICE, "Please run tnbmp as a superuser");
 		closelog ();
 		return 1;
 	}
-
-	setlogmask (LOG_UPTO (LOG_NOTICE));
-	openlog ("tnbmp", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-	syslog (LOG_NOTICE, "Program started by User %d", getuid ());
 
 	// Create variables.
 	const char* media_src = "/music/usb/";
