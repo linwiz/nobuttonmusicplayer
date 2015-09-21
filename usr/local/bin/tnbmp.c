@@ -151,7 +151,7 @@ int main (void)
 		path = udev_list_entry_get_name(dev_list_entry);
 		dev = udev_device_new_from_syspath(udev, path);
 		dev = udev_device_get_parent_with_subsystem_devtype(dev,
-		                                                    "usb", "usb_device");
+									"usb", "usb_device");
 		if (!dev)
 		{
 			syslog (LOG_NOTICE, "Unable to find Parent usb device");
