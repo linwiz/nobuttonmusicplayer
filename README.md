@@ -17,6 +17,7 @@ The following software has been used:
 * libudev (for USB access)
 * a self-written C program
   
+
 Features:
 ====== 
 * Always on: When you power on the raspberry, it will boot up and start the python script and start playing music
