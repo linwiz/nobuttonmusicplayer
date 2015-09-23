@@ -1,0 +1,8 @@
+#!/bin/bash
+#sudo killall pc-to-usb-sync
+gcc -Wall -g -Ofast -o ~/nobuttonmusicplayer/bin/pc-to-usb-sync ~/nobuttonmusicplayer/pc-to-usb-sync.c -ludev
+chmod +x ~/nobuttonmusicplayer/bin/pc-to-usb-sync
+#sudo rm /usr/local/bin/pc-to-usb-sync
+#sudo cp ~/nobuttonmusicplayer/bin/pc-to-usb-sync /usr/local/bin/pc-to-usb-sync
+#sudo /usr/local/bin/pc-to-usb-sync &
+

@@ -30,37 +30,6 @@ void logpopen (char *command, char *mode)
 	pclose(in);
 }
 
-// Check to see if a directory exists, make it if not.
-void makedir(const char *directory)
-{
-	// Create directories if they are non existant.
-	DIR* trgtdir = opendir(directory);
-	// Directory exists.
-	if (trgtdir)
-	{
-		closedir(trgtdir);
-	}
-	// Directory does not exist.
-	else if (ENOENT == errno)
-	{
-		int mkstatus;
-		mkstatus = mkdir(directory, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		if (mkstatus < 0)
-		{
-			syslog (LOG_NOTICE, "Unable to create directory %s (%s :%d)",
-			        directory, strerror(errno), errno);
-		}
-		else {
-			syslog (LOG_NOTICE, "Directory %s created", directory);
-		}
-	}
-	else
-	{
-		syslog (LOG_NOTICE, "Unable to open directory %s (%s :%d)",
-		        directory, strerror(errno), errno);
-	}
-}
-
 int main (void)
 {
 	setlogmask (LOG_UPTO (LOG_NOTICE));
@@ -77,8 +46,6 @@ int main (void)
 	// Create variables.
 	const char* media_src = "/run/media/pi/Seagate Freeagent Go/Documents/Music/kyle/";
 	const char* media_trgt = "/music/usb/";
-	char commandRebuildPlaylist[100];
-	char commandPlayMusic[100];
 	char commandRemoveFiles[100];
 	char commandCopyFiles[100];
 	struct udev *udev;
@@ -162,7 +129,7 @@ int main (void)
 						int result = mount(mount_src, mount_trgt, mount_type, mount_flags, NULL);
 						if (result == 0)
 						{
-							syslog (LOG_NOTICE, "%s", udev_device_get_sysname(dev));
+							//syslog (LOG_NOTICE, "%s", udev_device_get_sysname(dev));
 							// Add new music from the usb device.
 							//syslog (LOG_NOTICE, "Adding new music...\n");
 							//sprintf(commandCopyFiles, "/bin/cp %s*.* %s 2>&1", media_src, media_trgt);
