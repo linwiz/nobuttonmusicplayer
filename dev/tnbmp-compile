@@ -1,0 +1,7 @@
+#!/bin/bash
+#sudo killall tnbmp
+gcc -Wall -g -Ofast -o ~/nobuttonmusicplayer/usr/local/bin/tnbmp ~/nobuttonmusicplayer/usr/local/bin/tnbmp.c -ludev
+chmod +x ~/nobuttonmusicplayer/usr/local/bin/tnbmp
+#sudo rm /usr/local/bin/tnbmp
+#sudo cp ~/nobuttonmusicplayer/usr/local/bin/tnbmp /usr/local/bin/tnbmp
+#sudo /usr/local/bin/tnbmp &
