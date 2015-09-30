@@ -26,10 +26,12 @@ Features:
 
 Instructions
 =======
+
 Via installation script:
 * wget -O install.sh http://git.io/vZbEu
 * chmod +x install.sh
 * ./install.sh
+
 
 Manually:
 Install the following packages:
